@@ -6,9 +6,12 @@ const SkillSchema = new mongoose.Schema({
         required:[true,'Please provide skill name'],
         maxlength:50
     },
-    url:{
-        type:String,
-        required:[true,'Please provide skill url'],
+    image:{
+        type:Object,
+        required:[true,'Please provide skill image.url'],
+        url:{
+            type:String,
+        }
     },
     progress:{
         type:Number,

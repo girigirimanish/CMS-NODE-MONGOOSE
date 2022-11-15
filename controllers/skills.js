@@ -38,7 +38,7 @@ const updateSkill = async (req,res) =>{
     } = req
 
     if(title==='' || url===''|| progress===''){
-        throw new BadRequestError('Title,Url or Progress Fields cannot be empty')
+        throw new BadRequestError('Title,Image.Url or Progress Fields cannot be empty')
     }
 
     const skill = await Skill.findOneAndUpdate(
@@ -48,7 +48,7 @@ const updateSkill = async (req,res) =>{
     )
 
     if(!skill){
-        throw new NotFoundError(`No Job found with id ${skillId}`)
+        throw new NotFoundError(`No Skill found with id ${skillId}`)
     }
 
     res.status(StatusCodes.OK).json({skill})
@@ -66,9 +66,9 @@ const deleteSkill = async (req,res) =>{
     })
 
     if(!skill){
-        throw new NotFoundError(`No Job found with id ${skillId}`)
+        throw new NotFoundError(`No Skill found with id ${skillId}`)
     }
-    res.status(StatusCodes.OK).send()
+    res.status(StatusCodes.OK).send('Delete Success')
 }
 
 module.exports ={
