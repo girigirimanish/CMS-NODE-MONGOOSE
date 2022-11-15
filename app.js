@@ -1,14 +1,62 @@
-const http = require('http');
+require('dotenv').config();
+require('express-async-errors');
 
-const hostname = '127.0.0.1';
-const port = 3000;
+//Security Packages
+const helmet = require('helmet')
+const cors = require('cors')
+const xss = require('xss-clean')
+const rateLimiter = require('express-rate-limit')
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World');
-});
+const express = require('express');
+const app = express();
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});g
+
+//connectDB
+const connectDB = require ('./db/connect')
+const authenticateUser = require('./middleware/authentication')
+//routers
+const authRouter = require('./routes/auth')
+const socialsRouter = require('./routes/socials')
+const skillsRouter = require('./routes/skills')
+
+// error handler
+const notFoundMiddleware = require('./middleware/not-found');
+const errorHandlerMiddleware = require('./middleware/error-handler');
+
+//invoking Packages
+app.set('trust proxy', 1)
+app.use(
+  rateLimiter({ 
+    windowMs: 15*60*1000, // 15 minutes
+    max: 100 // limit each Ip to 100 requests per windowMs
+})
+)
+app.use(express.json())
+app.use(helmet())
+app.use(cors())
+app.use(xss())
+
+
+// routes
+app.use('/api/v1/auth',authRouter)
+app.use('/api/v1/socials',authenticateUser,socialsRouter)
+app.use('/api/v1/skills',authenticateUser,skillsRouter)
+
+
+app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);
+
+const port = process.env.PORT || 3000;
+
+const start = async () => {
+  try {
+    await connectDB(process.env.MONGO_URI)
+    app.listen(port, () =>
+      console.log(`Server is listening on port ${port}...`)
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+start();
